@@ -1,0 +1,14 @@
+content-service:
+  build: ./services/content-service
+  container_name: content-service
+  depends_on:
+    - postgres
+    - rabbitmq
+  environment:
+    DATABASE_URL: postgresql://admin:secret@postgres:5432/content_db
+  ports:
+    - "3000:3000"
+  volumes:
+    - ./services/content-service:/app
+    - /app/node_modules
+  command: npm run dev

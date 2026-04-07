@@ -1,0 +1,10 @@
+services/content-service/node_modules
+.env
+npm-debug.log
+Dockerfile
+.dockerignore
+dist
+build
+coverage
+*.log
+*.env
