@@ -1,20 +1,44 @@
 import { Request, Response } from "express";
-import catchAsync from "../../../shared/catchAsync";
-import { ReportService } from "./report.services";
-import sendResponse from "../../../shared/sendResponse";
+import catchAsync from "../../../shared/catchAsync.js";
+import { ContentService } from "./content.services.js";
+import sendResponse from "../../../shared/sendResponse.js";
+import type { IAuthRequest } from "../../../shared/types.js";
 
-const generateReport = catchAsync(async (req: Request, res: Response) => {
-  const { reportType, data } = req.body;
-  const result = await ReportService.generateReport(reportType, data);
+// Upload file and create a content job
+const uploadContent = catchAsync(async (req: IAuthRequest, res: Response) => {
+  if (!req.file) {
+    return sendResponse(res, {
+      statusCode: 400,
+      success: false,
+      message: "No file uploaded",
+    });
+  }
+
+  if (!req.user?.id) {
+    return sendResponse(res, {
+      statusCode: 401,
+      success: false,
+      message: "User not authenticated",
+    });
+  }
+
+  const { type } = req.body; // e.g., 'SUMMARY' or 'TEXT_EXTRACTION'
+  const filePath = req.file.path;
+
+  const result = await ContentService.createContentJob({
+    filePath,
+    type,
+    userId: req.user.id,
+  });
 
   sendResponse<{ jobId: string }>(res, {
     statusCode: 202,
     success: true,
-    message: "Report job created",
+    message: "Content job created",
     data: { jobId: result },
   });
 });
 
-export const ReportController = {
-  generateReport,
+export const ContentController = {
+  uploadContent,
 };

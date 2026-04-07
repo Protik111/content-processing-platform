@@ -1,12 +1,12 @@
 import express from "express";
-import { ReportRoutes } from "../modules/report/report.routes";
+import { contentRoutes } from "../modules/content/content.routes.js";
 
 const router = express.Router();
 
 const moduleRoutes = [
   {
-    path: "/reports",
-    route: ReportRoutes,
+    path: "/content",
+    route: contentRoutes,
   },
 ];
 
