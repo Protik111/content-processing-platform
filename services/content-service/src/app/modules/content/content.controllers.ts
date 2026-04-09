@@ -6,29 +6,16 @@ import type { IAuthRequest } from "../../../shared/types.js";
 
 // Upload file and create a content job
 const uploadContent = catchAsync(async (req: IAuthRequest, res: Response) => {
-  if (!req.file) {
-    return sendResponse(res, {
-      statusCode: 400,
-      success: false,
-      message: "No file uploaded",
-    });
-  }
-
-  if (!req.user?.id) {
-    return sendResponse(res, {
-      statusCode: 401,
-      success: false,
-      message: "User not authenticated",
-    });
-  }
-
-  const { type } = req.body; // e.g., 'SUMMARY' or 'TEXT_EXTRACTION'
-  const filePath = req.file.path;
+  const { type } = req.body;
+  const filePath = req.file!.path;
+  
+  // Using a dummy userId for now since authentication middleware is not yet implemented
+  const userId = req.user?.id || "dummy-user-id";
 
   const result = await ContentService.createContentJob({
     filePath,
     type,
-    userId: req.user.id,
+    userId,
   });
 
   sendResponse<{ jobId: string }>(res, {

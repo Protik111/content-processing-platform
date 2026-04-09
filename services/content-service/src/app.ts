@@ -2,6 +2,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import express, { Application, NextFunction, Request, Response } from "express";
 import routes from "./app/routes/index.js";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler.js";
 
 const app: Application = express();
 const corsOptions = {
@@ -23,9 +24,12 @@ app.use("/health", (req: Request, res: Response) => {
 
 app.use("/api/v1", routes);
 
+//global error handler
+app.use(globalErrorHandler);
+
 //handle not found
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.status(400).json({
+  res.status(404).json({
     success: false,
     message: "Not Found",
     errorMessages: [
@@ -35,7 +39,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
       },
     ],
   });
-  next();
 });
 
 export default app;
