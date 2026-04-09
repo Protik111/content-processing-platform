@@ -1,14 +1,41 @@
-content-service:
-  build: ./services/content-service
-  container_name: content-service
-  depends_on:
-    - postgres
-    - rabbitmq
-  environment:
-    DATABASE_URL: postgresql://admin:secret@postgres:5432/content_db
-  ports:
-    - "3000:3000"
-  volumes:
-    - ./services/content-service:/app
-    - /app/node_modules
-  command: npm run dev
+services:
+  content-service:
+    build: ./services/content-service
+    container_name: content-service
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:11111@db:5432/content-processing-platform?schema=public
+    ports:
+      - "3000:5000"
+    volumes:
+      - ./services/content-service:/app
+      - /app/node_modules
+    command: pnpm run dev
+
+  db:
+    image: postgres:15-alpine
+    container_name: content-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 11111
+      POSTGRES_DB: content-processing-platform
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d content-processing-platform" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
