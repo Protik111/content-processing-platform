@@ -25,11 +25,6 @@ export const authenticate = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-
-    console.log('Auth header:', authHeader);
-    console.log('Config Issuer:', config.keycloak_issuer);
-    console.log('Config Client ID:', config.keycloak_client_id);
-    console.log('Internal JWKS URI:', JWKS_URI);
     
     if (!authHeader?.startsWith('Bearer ')) {
       res.status(401).json({ success: false, message: 'Missing or invalid Authorization header' });

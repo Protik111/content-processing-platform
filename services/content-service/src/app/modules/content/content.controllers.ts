@@ -3,6 +3,7 @@ import catchAsync from "../../../shared/catchAsync.js";
 import { ContentService } from "./content.services.js";
 import sendResponse from "../../../shared/sendResponse.js";
 import type { IAuthRequest } from "../../../shared/types.js";
+import ApiError from "../../errors/ApiError.js";
 
 // Upload file and create a content job
 const uploadContent = catchAsync(async (req: IAuthRequest, res: Response) => {
@@ -30,6 +31,10 @@ const uploadContent = catchAsync(async (req: IAuthRequest, res: Response) => {
 const getContentJob = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await ContentService.getContentJob(id as string);
+
+  if (!result) {
+    throw new ApiError(404, "Content job not found");
+  }
 
   sendResponse(res, {
     statusCode: 200,
