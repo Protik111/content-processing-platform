@@ -41,8 +41,13 @@ export const authenticate = async (
     // Verify JWT signature & claims
     const { payload } = await jose.jwtVerify(token, jwksClient, {
       issuer: config.keycloak_issuer,
-      audience: config.keycloak_client_id, // matches your client ID
+      // Keycloak tokens often have 'account' as audience by default. 
+      // We've verified 'azp' matches our client ID below for security.
     });
+
+    if (payload.azp !== config.keycloak_client_id) {
+      throw new Error('Invalid authorized party');
+    }
 
     // Attach user info to request
     req.user = {
