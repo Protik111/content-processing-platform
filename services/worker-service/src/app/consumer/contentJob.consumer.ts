@@ -1,11 +1,12 @@
 import * as amqplib from 'amqplib';
 import prisma from '../../lib/prisma.js';
 import { processContent } from '../../processors/content.processor.js';
+import config from '../../config/index.js';
 
-const QUEUE_NAME = process.env.RABBITMQ_QUEUE || 'content.processing';
+const QUEUE_NAME = config.rabbitmq_queue;
 
 export async function startContentJobConsumer() {
-  const connection = await amqplib.connect(process.env.RABBITMQ_URL!);
+  const connection = await amqplib.connect(config.rabbitmq_url!);
   const channel = await connection.createChannel();
   
   await channel.assertQueue(QUEUE_NAME, { durable: true });
