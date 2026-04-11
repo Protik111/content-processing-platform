@@ -14,4 +14,6 @@ router.post(
   ContentController.uploadContent
 );
 
+router.get("/:id", ContentController.getContentJob);
+
 export const contentRoutes = router;

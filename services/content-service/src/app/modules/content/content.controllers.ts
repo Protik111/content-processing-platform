@@ -26,6 +26,20 @@ const uploadContent = catchAsync(async (req: IAuthRequest, res: Response) => {
   });
 });
 
+// Get content job details
+const getContentJob = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ContentService.getContentJob(id as string);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Content job retrieved successfully",
+    data: result,
+  });
+});
+
 export const ContentController = {
   uploadContent,
+  getContentJob,
 };

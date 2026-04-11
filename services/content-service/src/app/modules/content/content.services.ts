@@ -32,6 +32,18 @@ const createContentJob = async (data: ICreateContentJob): Promise<string> => {
   return jobId;
 };
 
+// Get content job details
+const getContentJob = async (jobId: string) => {
+  const result = await prisma.content.findUnique({
+    where: {
+      id: jobId,
+    },
+  });
+
+  return result;
+};
+
 export const ContentService = {
   createContentJob,
+  getContentJob,
 };
