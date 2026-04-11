@@ -1,4 +1,5 @@
 services/content-service/node_modules
+services/worker-service/node_modules
 .env
 npm-debug.log
 Dockerfile

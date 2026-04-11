@@ -21,7 +21,7 @@ const createContentJob = async (data: ICreateContentJob): Promise<string> => {
   });
 
   // Publish message to RabbitMQ (direct exchange)
-  await publishToQueue("content.processing", {
+  await publishToQueue("content-processing", {
     jobId,
     filePath: data.filePath,
     type: data.type,
