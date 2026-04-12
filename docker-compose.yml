@@ -15,6 +15,8 @@ services:
       - ./services/content-service:/app
       - /app/node_modules
       - ./uploads:/app/uploads
+    networks:
+      - app-network
     command: pnpm run dev
 
   worker-service:
@@ -38,6 +40,8 @@ services:
       - ./services/worker-service:/app
       - /app/node_modules
       - ./uploads:/app/uploads
+    networks:
+      - app-network
     command: pnpm run dev
     restart: unless-stopped
 
@@ -54,6 +58,8 @@ services:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
@@ -72,6 +78,8 @@ services:
       - "8080:8080"
     volumes:
       - keycloak-data:/opt/keycloak/data
+    networks:
+      - app-network
     restart: unless-stopped
 
   rabbitmq:
@@ -80,7 +88,88 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  kong-database:
+    image: postgres:15-alpine
+    container_name: kong-db
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kongpass
+      POSTGRES_DB: kong
+    volumes:
+      - kong-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U kong -d kong" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  kong-migration:
+    image: kong:3.4
+    container_name: kong-migration
+    command: kong migrations bootstrap
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PASSWORD: kongpass
+      KONG_PG_USER: kong
+      KONG_PG_DATABASE: kong
+    networks:
+      - app-network
+    restart: "no"
+
+  kong:
+    image: kong:3.4
+    container_name: kong-gateway
+    ports:
+      - "8000:8000" # Proxy
+      - "8001:8001" # Admin API
+      - "8002:8002" # Manager GUI
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+      KONG_PG_DATABASE: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_LISTEN: 0.0.0.0:8002
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+      KONG_ADMIN_GUI_AUTH: "off"
+    depends_on:
+      kong-database:
+        condition: service_healthy
+      kong-migration:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   db-data:
   keycloak-data:
+  kong-db-data:
