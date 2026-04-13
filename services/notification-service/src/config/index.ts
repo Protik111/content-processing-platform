@@ -6,7 +6,5 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 export default {
   port: process.env.PORT || 5001,
   rabbitmq_url: process.env.RABBITMQ_URL || "amqp://guest:guest@rabbitmq:5672",
-  rabbitmq_queue: process.env.RABBITMQ_QUEUE || "content-processing",
   rabbitmq_exchange: process.env.RABBITMQ_EXCHANGE || "job.status",
-  database_url: process.env.DATABASE_URL,
 };

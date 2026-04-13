@@ -51,6 +51,33 @@ services:
     command: pnpm run dev
     restart: unless-stopped
 
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    container_name: notification-service
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_EXCHANGE: job.status
+      NODE_ENV: ${NODE_ENV}
+      PORT: 5001
+    ports:
+      - "5001:5001"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/notification-service:/app
+      - /app/node_modules
+      - ./shared/prisma:/app/prisma
+    networks:
+      - app-network
+    command: pnpm run dev
+    restart: unless-stopped
+
   db:
     image: postgres:15-alpine
     container_name: content-db
