@@ -5,11 +5,12 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY package.json pnpm-lock.yaml ./
+COPY services/content-service/package.json services/content-service/pnpm-lock.yaml ./
 
 RUN pnpm install
 
-COPY . .
+COPY shared/prisma ./prisma
+COPY services/content-service .
 RUN npx prisma generate
 
 EXPOSE 3000
