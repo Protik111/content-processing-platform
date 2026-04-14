@@ -10,7 +10,10 @@ export default defineConfig({
     proxy: {
       '/auth': {
         target: 'http://keycloak:8080',
-        changeOrigin: true,
+        changeOrigin: false,
+        headers: {
+          Host: 'localhost:8080'
+        },
         rewrite: (path) => path.replace(/^\/auth/, '')
       }
     }
