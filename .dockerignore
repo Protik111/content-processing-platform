@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+
+# Ignore local prisma symlinks in services
+services/content-service/prisma
+services/worker-service/prisma
+
+# But don't ignore the shared one! (It's copied explicitly)
+!shared/prisma

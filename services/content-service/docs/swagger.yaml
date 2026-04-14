@@ -1,0 +1,128 @@
+openapi: 3.0.0
+info:
+  title: Content Processing Platform - Content Service API
+  description: API for uploading content and retrieving processing job status.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Direct Access (No API Gateway)
+  - url: http://localhost:8000
+    description: Kong API Gateway
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/content:
+    post:
+      summary: Upload a new content file for processing
+      description: Accepts a file (text, markdown, etc.) and a processing type (TEXT_EXTRACTION or SUMMARY). The job is enqueued via RabbitMQ for background processing.
+      tags:
+        - Content
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - type
+                - file
+              properties:
+                type:
+                  type: string
+                  enum: [TEXT_EXTRACTION, SUMMARY]
+                  description: The type of processing to perform on the uploaded file.
+                file:
+                  type: string
+                  format: binary
+                  description: The text-based file to upload (e.g. .txt, .md, .csv).
+      responses:
+        '202':
+          description: Content job accepted and enqueued successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Content job created
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+        '400':
+          description: Validation error or unsupported file type.
+        '401':
+          description: Unauthorized request.
+
+  /api/v1/content/{id}:
+    get:
+      summary: Get the status and result of a content processing job
+      description: Retrieves the current status (PENDING, PROCESSING, COMPLETED, FAILED) and the output result or error of a previously uploaded job.
+      tags:
+        - Content
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique job ID returned during the upload.
+      responses:
+        '200':
+          description: Job status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      userId:
+                        type: string
+                      filePath:
+                        type: string
+                      type:
+                        type: string
+                        enum: [TEXT_EXTRACTION, SUMMARY]
+                      status:
+                        type: string
+                        enum: [PENDING, PROCESSING, COMPLETED, FAILED]
+                      result:
+                        type: string
+                        nullable: true
+                      error:
+                        type: string
+                        nullable: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '401':
+          description: Unauthorized request.
+        '404':
+          description: Content job not found.

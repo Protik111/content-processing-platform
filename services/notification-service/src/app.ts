@@ -1,6 +1,9 @@
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import express, { Application, NextFunction, Request, Response } from "express";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+import path from "path";
 import { NotificationRoutes } from "./routes/notifications.routes.js";
 
 const app: Application = express();
@@ -23,6 +26,9 @@ app.use("/health", (req: Request, res: Response) => {
   });
 });
 
+// Swagger Documentation
+const swaggerDocument = YAML.load(path.join(process.cwd(), "docs/swagger.yaml"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //global error handler
 

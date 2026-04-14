@@ -1,10 +1,10 @@
-services/content-service/node_modules
-services/worker-service/node_modules
-services/notification-service/node_modules
+**/node_modules
+**/.pnpm-store
+**/dist
+**/uploads
 .env
 npm-debug.log
-Dockerfile
-.dockerignore
+
 dist
 build
 coverage

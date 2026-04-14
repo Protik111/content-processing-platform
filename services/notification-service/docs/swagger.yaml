@@ -1,0 +1,37 @@
+openapi: 3.0.0
+info:
+  title: Content Processing Platform - Notification Service API
+  description: API for Server-Sent Events (SSE) broadcasting job status updates.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5001
+    description: Direct Access
+
+paths:
+  /api/notifications/stream:
+    get:
+      summary: Subscribe to live job status notifications (SSE)
+      description: |
+        Establishes a long-lived Server-Sent Events (SSE) connection to receive real-time updates when content processing jobs change status (`PROCESSING`, `COMPLETED`, `FAILED`).
+        
+        **Note for Swagger UI:** Swagger UI does not natively support rendering live SSE streams cleanly. To test this endpoint, use curl or a browser window.
+      tags:
+        - Notifications
+      parameters:
+        - in: header
+          name: x-client-id
+          schema:
+            type: string
+          required: false
+          description: Optional unique identifier for the client connection. If not provided, one will be generated automatically.
+      responses:
+        '200':
+          description: Streaming connection established successfully.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  data: {"jobId":"test-123","status":"COMPLETED"}
+                  
+                  data: {"jobId":"fake-dlq-test","status":"FAILED","error":"Job permanently failed after 3 retries"}
