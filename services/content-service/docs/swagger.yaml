@@ -1,7 +1,15 @@
 openapi: 3.0.0
 info:
   title: Content Processing Platform - Content Service API
-  description: API for uploading content and retrieving processing job status.
+  description: |
+    API for uploading content and retrieving processing job status.
+    
+    ### Test Credentials
+    For local testing, use the following Keycloak credentials to get a Bearer token:
+    - **client_id**: `content-service`
+    - **client_secret**: `onfenChucD3uKFKhPuEATCyflsA0oPyB`
+    - **username**: `testuser`
+    - **password**: `password123`
   version: 1.0.0
 servers:
   - url: http://localhost:3000
@@ -15,9 +23,16 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    keycloakAuth:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: http://localhost:8080/realms/content-platform/protocol/openid-connect/token
+          scopes: {}
 
 security:
   - bearerAuth: []
+  - keycloakAuth: []
 
 paths:
   /api/v1/content:
