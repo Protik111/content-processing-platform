@@ -6,7 +6,21 @@ import { ContentValidation } from "./content.validations.js";
 import { authenticate } from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" });
+
+const ALLOWED_MIME_TYPES = ["text/plain", "text/csv", "text/html", "text/markdown", "application/json"];
+
+const upload = multer({
+  dest: "uploads/",
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Unsupported file type: ${file.mimetype}. Only text files are allowed.`));
+    }
+  },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+});
+
 
 router.post(
   "/",

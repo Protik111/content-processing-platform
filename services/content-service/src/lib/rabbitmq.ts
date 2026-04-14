@@ -5,7 +5,6 @@ let channel: amqplib.Channel | null = null;
 export async function connectRabbitMQ(url: string, queueName: string) {
   const connection = await amqplib.connect(url);
   channel = await connection.createChannel();
-  await channel.assertQueue(queueName, { durable: true });
   return channel;
 }
 

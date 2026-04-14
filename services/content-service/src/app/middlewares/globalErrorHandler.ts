@@ -1,5 +1,6 @@
 import { ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
+import multer from "multer";
 import ApiError from "../errors/ApiError.js";
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
@@ -14,6 +15,10 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
       path: issue.path[issue.path.length - 1] as string | number,
       message: issue.message,
     }));
+  } else if (error instanceof multer.MulterError) {
+    statusCode = 400;
+    message = error.message;
+    errorMessages = [{ path: error.field || "file", message: error.message }];
   } else if (error instanceof ApiError) {
     statusCode = error?.statusCode;
     message = error?.message;
@@ -26,14 +31,13 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
         ]
       : [];
   } else if (error instanceof Error) {
+    // fileFilter errors from multer are plain Errors — detect and return 400
+    if (error.message.startsWith("Unsupported file type")) {
+      statusCode = 400;
+    }
     message = error?.message;
     errorMessages = error?.message
-      ? [
-          {
-            path: "",
-            message: error?.message,
-          },
-        ]
+      ? [{ path: "", message: error?.message }]
       : [];
   }
 
