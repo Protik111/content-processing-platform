@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 import { extname } from 'path';
 
 export const processContent = async (filePath: string, type: string): Promise<string> => {
-  console.log(`🔍 Processing ${filePath} as ${type}`);
+  console.log(`Processing ${filePath} as ${type}`);
   
   // Simulate processing delay (remove in production)
   await new Promise(resolve => setTimeout(resolve, 2000));

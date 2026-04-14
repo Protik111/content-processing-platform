@@ -23,7 +23,6 @@ async function bootstrap() {
     }
     process.exit(1);
   };
-// ... rest of file (keeping error handlers)
 
   const unexpectedErrorHandler = (error: unknown) => {
     console.log(error);
