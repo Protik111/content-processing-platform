@@ -2,18 +2,21 @@ import { Server } from "http";
 import app from "./app.js";
 import config from "./config/index.js";
 import { startContentJobConsumer } from "./app/consumer/contentJob.consumer.js";
+import { startDLQConsumer } from "./app/consumer/dlq.consumer.js";
 
 async function bootstrap() {
   const server: Server = app.listen(config.port, () => {
     console.log(`Worker service running on port ${config.port}`);
   });
 
-  // Start RabbitMQ consumer
+  // Start RabbitMQ consumers
   try {
-    await startContentJobConsumer();
+    const channel = await startContentJobConsumer();
+    await startDLQConsumer(channel);
   } catch (error) {
-    console.error("Failed to start content job consumer:", error);
+    console.error("Failed to start consumers:", error);
   }
+
 
   const exitHandler = () => {
     if (server) {

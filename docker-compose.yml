@@ -35,6 +35,9 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
       RABBITMQ_QUEUE: content-processing
+      RABBITMQ_EXCHANGE: job.status
+      MAX_RETRIES: 3
+      RABBITMQ_RETRY_DELAY_MS: 30000
       NODE_ENV: ${NODE_ENV}
     depends_on:
       db:
