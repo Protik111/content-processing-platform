@@ -1,5 +1,5 @@
 const KEYCLOAK_TOKEN_URL =
-  'http://localhost:8080/realms/content-platform/protocol/openid-connect/token';
+  '/auth/realms/content-platform/protocol/openid-connect/token';
 
 export interface TokenResponse {
   access_token: string;
