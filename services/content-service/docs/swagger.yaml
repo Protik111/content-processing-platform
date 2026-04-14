@@ -36,6 +36,54 @@ security:
 
 paths:
   /api/v1/content:
+    get:
+      summary: Get all content processing jobs
+      description: Retrieves a list of all content processing jobs ordered by creation date (newest first).
+      tags:
+        - Content
+      responses:
+        '200':
+          description: Jobs retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        userId:
+                          type: string
+                        filePath:
+                          type: string
+                        type:
+                          type: string
+                          enum: [TEXT_EXTRACTION, SUMMARY]
+                        status:
+                          type: string
+                          enum: [PENDING, PROCESSING, COMPLETED, FAILED]
+                        result:
+                          type: string
+                          nullable: true
+                        error:
+                          type: string
+                          nullable: true
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+        '401':
+          description: Unauthorized request.
     post:
       summary: Upload a new content file for processing
       description: Accepts a file (text, markdown, etc.) and a processing type (TEXT_EXTRACTION or SUMMARY). The job is enqueued via RabbitMQ for background processing.
