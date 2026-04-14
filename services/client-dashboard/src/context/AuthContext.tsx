@@ -12,17 +12,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem('access_token');
+  });
 
   const login = useCallback(async (username: string, password: string) => {
     const data = await loginWithPassword(username, password);
     setToken(data.access_token);
     setAuthToken(data.access_token);
+    localStorage.setItem('access_token', data.access_token);
   }, []);
 
   const logout = useCallback(() => {
     setToken(null);
     setAuthToken(null);
+    localStorage.removeItem('access_token');
   }, []);
 
   // Keep axios token in sync
