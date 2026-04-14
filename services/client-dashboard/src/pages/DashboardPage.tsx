@@ -7,6 +7,7 @@ import JobsTable from '../components/JobsTable';
 import JobDrawer from '../components/JobDrawer';
 import SSEStatusBanner from '../components/SSEStatusBanner';
 import { Zap, LogOut, RefreshCw } from 'lucide-react';
+import { Toaster, toast } from 'react-hot-toast';
 
 export default function DashboardPage() {
   const { logout } = useAuth();
@@ -17,11 +18,17 @@ export default function DashboardPage() {
   // SSE — update job status in real-time
   const handleSSEUpdate = useCallback(({ jobId, status, result, error }: { jobId: string; status: JobStatus; result?: string; error?: string }) => {
     setJobs(prev =>
-      prev.map(j =>
-        j.id === jobId
-          ? { ...j, status, result: result ?? j.result, error: error ?? j.error, updatedAt: new Date().toISOString() }
-          : j
-      )
+      prev.map(j => {
+        if (j.id === jobId) {
+          if (j.status !== 'COMPLETED' && status === 'COMPLETED') {
+            toast.success(`Job completed!`, { position: 'bottom-right' });
+          } else if (j.status !== 'FAILED' && status === 'FAILED') {
+            toast.error(`Job failed!`, { position: 'bottom-right' });
+          }
+          return { ...j, status, result: result ?? j.result, error: error ?? j.error, updatedAt: new Date().toISOString() };
+        }
+        return j;
+      })
     );
     // Also update drawer if open
     setSelectedJob(prev =>
@@ -153,6 +160,8 @@ export default function DashboardPage() {
 
       {/* Job Drawer */}
       {selectedJob && <JobDrawer job={selectedJob} onClose={() => setSelectedJob(null)} />}
+
+      <Toaster />
     </div>
   );
 }
