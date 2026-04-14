@@ -81,6 +81,20 @@ services:
     command: pnpm run dev
     restart: unless-stopped
 
+  client-dashboard:
+    build:
+      context: .
+      dockerfile: services/client-dashboard/Dockerfile
+    container_name: client-dashboard
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./services/client-dashboard:/app
+      - /app/node_modules
+    networks:
+      - app-network
+    command: pnpm run dev
+
   db:
     image: postgres:15-alpine
     container_name: content-db

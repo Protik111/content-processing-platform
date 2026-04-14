@@ -6,9 +6,10 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    host: true,
     proxy: {
       '/auth': {
-        target: 'http://localhost:8080',
+        target: 'http://keycloak:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '')
       }
