@@ -40,8 +40,8 @@ export function useSSE(onUpdate: (update: JobUpdate) => void) {
       } catch { /* ignore malformed */ }
     };
 
-    // Named event from worker service: "job.update" or similar
-    es.addEventListener('job.status', (e) => {
+    // Named event from worker service
+    es.addEventListener('jobUpdate', (e) => {
       try {
         const data = JSON.parse((e as MessageEvent).data);
         onUpdate(data as JobUpdate);
