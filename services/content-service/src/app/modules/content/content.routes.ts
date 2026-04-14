@@ -30,6 +30,8 @@ router.post(
   ContentController.uploadContent
 );
 
+router.get("/", authenticate as any, ContentController.getAllContentJobs);
+
 router.get("/:id", authenticate as any, ContentController.getContentJob);
 
 export const contentRoutes = router;

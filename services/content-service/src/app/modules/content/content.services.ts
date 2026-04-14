@@ -43,7 +43,16 @@ const getContentJob = async (jobId: string) => {
   return result;
 };
 
+// Get all content jobs
+const getAllContentJobs = async () => {
+  const result = await prisma.content.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+  return result;
+};
+
 export const ContentService = {
   createContentJob,
   getContentJob,
+  getAllContentJobs,
 };

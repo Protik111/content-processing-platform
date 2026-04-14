@@ -44,7 +44,20 @@ const getContentJob = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Get all content jobs
+const getAllContentJobs = catchAsync(async (req: Request, res: Response) => {
+  const result = await ContentService.getAllContentJobs();
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Content jobs retrieved successfully",
+    data: result,
+  });
+});
+
 export const ContentController = {
   uploadContent,
   getContentJob,
+  getAllContentJobs,
 };
