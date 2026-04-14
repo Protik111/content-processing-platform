@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSSE } from '../hooks/useSSE';
-import { getJob, type Job, type JobStatus } from '../api/content';
+import { getJob, getAllJobs, type Job, type JobStatus } from '../api/content';
 import UploadCard from '../components/UploadCard';
 import JobsTable from '../components/JobsTable';
 import JobDrawer from '../components/JobDrawer';
@@ -45,17 +45,23 @@ export default function DashboardPage() {
     }
   }, []);
 
+  // Load initial jobs
+  useEffect(() => {
+    getAllJobs().then(setJobs).catch(console.error);
+  }, []);
+
   // Refresh all jobs from API
   const handleRefresh = useCallback(async () => {
-    if (jobs.length === 0) return;
     setRefreshing(true);
     try {
-      const updated = await Promise.all(jobs.map(j => getJob(j.id).catch(() => j)));
+      const updated = await getAllJobs();
       setJobs(updated);
+    } catch (err) {
+      console.error('Failed to refresh jobs', err);
     } finally {
       setRefreshing(false);
     }
-  }, [jobs]);
+  }, []);
 
   // Keep selected job in sync when jobs array updates
   useEffect(() => {
@@ -133,7 +139,7 @@ export default function DashboardPage() {
               </div>
               <button
                 onClick={handleRefresh}
-                disabled={refreshing || jobs.length === 0}
+                disabled={refreshing}
                 style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 12, fontWeight: 500 }}
               >
                 <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />

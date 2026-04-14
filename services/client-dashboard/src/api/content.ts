@@ -30,3 +30,8 @@ export async function getJob(id: string): Promise<Job> {
   const res = await http.get(`/api/v1/content/${id}`);
   return res.data.data;
 }
+
+export async function getAllJobs(): Promise<Job[]> {
+  const res = await http.get('/api/v1/content');
+  return res.data.data;
+}
